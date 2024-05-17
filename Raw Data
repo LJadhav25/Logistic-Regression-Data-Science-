@@ -1,0 +1,115 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from google.colab import files
+
+data = files.upload()
+
+train = pd.read_csv('train.csv')
+
+train.head()
+
+train.info()
+
+train.isnull().sum()
+
+sns.heatmap(train.isnull())
+
+sns.countplot(x='Survived',hue='Pclass',data=train)
+
+CHECK for Unique value for an
+
+train['Sex'].unique()
+
+train['Embarked'].unique()
+
+train['Pclass'].unique()
+
+#Convert the valuues of unique value Male =1 , Female = 0
+
+sex = pd.get_dummies(train['Sex'],drop_first=True)
+
+sex.head()
+
+embark = pd.get_dummies(train['Embarked'],drop_first=True)
+
+embark.head()
+
+train.info()
+
+gender,Embarked,Name,Sex,Ticket
+
+train.drop(['Sex','Embarked','Name','Ticket'],axis=1,inplace=True)
+
+train.info()
+
+train = pd.concat([train,sex],axis=1)
+
+train = pd.concat([train,embark],axis=1)
+
+train.drop('PassengerId',axis=1,inplace=True)
+
+train.rename(columns = {'male':'Sex'},inplace=True)
+
+train.info()
+
+train.drop('Cabin',axis=1,inplace=True)
+
+# Find the relationship that on which column your age value is dependent
+
+train.corr()['Age']*100
+
+train.groupby('Pclass').describe()['Age']
+
+def change_age(value):
+  Age = value[0]
+  Pclass = value[1]
+
+  if pd.isnull(Age):
+    if Pclass == 1:
+      return 37
+    elif Pclass == 2:
+      return 29
+    else:
+      return 24
+  else:
+    return Age
+
+
+
+train['Age'] = train[['Age','Pclass']].apply(change_age,axis=1)
+
+sns.heatmap(train.isnull())
+
+train.info()
+
+# Split | Train | Predict | Evaluate
+
+
+
+from sklearn.model_selection import train_test_split
+
+X_train,X_test,Y_train,Y_test = train_test_split(train.drop('Survived',axis=1),train['Survived'],test_size = 0.30,random_state=40)
+
+X_train.shape
+
+Y_test.shape
+
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression()
+
+lr.fit(X_train,Y_train)
+
+predict = lr.predict(X_test)
+
+predict
+
+# Logestic Regression Import
+
+from sklearn.metrics import confusion_matrix,accuracy_score
+
+print(confusion_matrix(predict,Y_test))
+
+accuracy_score(Y_test,predict)*100
